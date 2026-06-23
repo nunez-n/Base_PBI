@@ -1,0 +1,87 @@
+---
+title: "Base PBI"
+output: html_document
+date: "2026-06-23"
+---
+```{r}
+library(rio)
+library(tidyverse)
+library(purrr)
+library(dplyr)
+library(fixest)
+library(ggplot2)
+library(janitor)
+library(stringi)
+library(stargazer) 
+```
+
+```{r}
+PBI = import("pbi_peru_2001-2021.xlsx")
+```
+
+```{r}
+PBI <- PBI %>%
+  tidyr::drop_na() #limpiar valores NA
+```
+
+```{r}
+PBI <- row_to_names(PBI, row_number = 1)
+```
+
+```{r}
+str(PBI)
+```
+
+```{r}
+names(PBI) <- names(PBI) %>%
+  stri_trans_general("Latin-ASCII") %>%  # elimina tildes
+  tolower() %>%                          # minúsculas
+  trimws() %>%                           # elimina espacios extremos
+  gsub("[^a-z0-9 ]", "", .) %>%          # elimina caracteres especiales
+  gsub("\\s+", "_", .)                   # espacios -> _
+```
+
+```{r}
+PBI$departamentos <- toupper(stri_trans_general(PBI$departamentos, "Latin-ASCII"))
+```
+
+```{r}
+PBI <- PBI %>%
+rename(c("distrito_electoral"="departamentos"))
+```
+
+```{r}
+PBI_anios <- PBI %>%
+ rename_with(
+    .fn = ~ paste0("PBI", ., ""),
+    .cols = matches("^\\d{4}$")  # selecciona columnas que son años (4 dígitos)
+  )
+```
+
+```{r}
+PBI_anios <- PBI_anios %>%
+  pivot_longer(
+    cols = -distrito_electoral,
+    names_to = c(".value", "anio"),
+    names_pattern = "(PBI)(\\d{4})"
+  )
+
+PBI_anios
+```
+
+```{r}
+PBI_anios <- PBI_anios %>%
+  tidyr::drop_na() #limpiar valores NA
+```
+
+```{r}
+PBI_anios <- PBI_anios %>%
+  filter(anio == 2001 | anio == 2006 | anio == 2011 | anio == 2016 | anio == 2020 | anio == 2021)
+
+PBI_anios
+```
+
+```{r}
+#Falta añadir base de datos de población por departamento en los periodos electorales para calcular PBI per cápita
+```
+
