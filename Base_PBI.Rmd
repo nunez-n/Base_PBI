@@ -82,6 +82,41 @@ PBI_anios
 ```
 
 ```{r}
+write.csv(PBI_anios, "PBI_anios.csv", row.names = FALSE)
 #Falta añadir base de datos de población por departamento en los periodos electorales para calcular PBI per cápita
+```
+
+```{r}
+pob_total = import("poblacion_total.csv")
+```
+```{r}
+pob_total <- pob_total %>%
+  mutate(anio = as.character(anio)) # Convertir la columna "anio" a tipo character
+```
+
+```{r}
+PBI_pc <- PBI_anios %>%
+  left_join(
+    pob_total,
+    by = c("distrito_electoral", "anio")
+  )
+
+PBI_pc
+```
+```{r}
+PBI_pc <- PBI_pc %>%
+    select(-V1)
+
+PBI_pc
+```
+```{r}
+PBI_pc <- PBI_pc %>%
+  mutate(PBI_pc = PBI* 1000 / pob_total)
+
+PBI_pc
+```
+
+```{r}
+write.csv(PBI_pc, "PBI_pc.csv")
 ```
 

@@ -502,7 +502,69 @@ PBI_anios</code></pre>
 ##  9 ANCASH             2011  16155687 
 ## 10 ANCASH             2016  18365696 
 ## # ℹ 134 more rows</code></pre>
-<pre class="r"><code>#Falta añadir base de datos de población por departamento en los periodos electorales para calcular PBI per cápita</code></pre>
+<pre class="r"><code>write.csv(PBI_anios, &quot;PBI_anios.csv&quot;, row.names = FALSE)
+#Falta añadir base de datos de población por departamento en los periodos electorales para calcular PBI per cápita</code></pre>
+<pre class="r"><code>pob_total = import(&quot;poblacion_total.csv&quot;)</code></pre>
+<pre class="r"><code>pob_total &lt;- pob_total %&gt;%
+  mutate(anio = as.character(anio)) # Convertir la columna &quot;anio&quot; a tipo character</code></pre>
+<pre class="r"><code>PBI_pc &lt;- PBI_anios %&gt;%
+  left_join(
+    pob_total,
+    by = c(&quot;distrito_electoral&quot;, &quot;anio&quot;)
+  )
+
+PBI_pc</code></pre>
+<pre><code>## # A tibble: 144 × 5
+##    distrito_electoral anio        PBI    V1 pob_total
+##    &lt;chr&gt;              &lt;chr&gt;     &lt;dbl&gt; &lt;int&gt;     &lt;int&gt;
+##  1 AMAZONAS           2001   1278016.     1    400866
+##  2 AMAZONAS           2006   1664368.     2    407817
+##  3 AMAZONAS           2011   2287107      3    407347
+##  4 AMAZONAS           2016   2784366      4    411525
+##  5 AMAZONAS           2020   3030350      5    426806
+##  6 AMAZONAS           2021   3122772      6    428512
+##  7 ANCASH             2001  11625612.   139   1089213
+##  8 ANCASH             2006  14745138.   140   1095903
+##  9 ANCASH             2011  16155687    141   1100147
+## 10 ANCASH             2016  18365696    142   1126698
+## # ℹ 134 more rows</code></pre>
+<pre class="r"><code>PBI_pc &lt;- PBI_pc %&gt;%
+    select(-V1)
+
+PBI_pc</code></pre>
+<pre><code>## # A tibble: 144 × 4
+##    distrito_electoral anio        PBI pob_total
+##    &lt;chr&gt;              &lt;chr&gt;     &lt;dbl&gt;     &lt;int&gt;
+##  1 AMAZONAS           2001   1278016.    400866
+##  2 AMAZONAS           2006   1664368.    407817
+##  3 AMAZONAS           2011   2287107     407347
+##  4 AMAZONAS           2016   2784366     411525
+##  5 AMAZONAS           2020   3030350     426806
+##  6 AMAZONAS           2021   3122772     428512
+##  7 ANCASH             2001  11625612.   1089213
+##  8 ANCASH             2006  14745138.   1095903
+##  9 ANCASH             2011  16155687    1100147
+## 10 ANCASH             2016  18365696    1126698
+## # ℹ 134 more rows</code></pre>
+<pre class="r"><code>PBI_pc &lt;- PBI_pc %&gt;%
+  mutate(PBI_pc = PBI* 1000 / pob_total)
+
+PBI_pc</code></pre>
+<pre><code>## # A tibble: 144 × 5
+##    distrito_electoral anio        PBI pob_total PBI_pc
+##    &lt;chr&gt;              &lt;chr&gt;     &lt;dbl&gt;     &lt;int&gt;  &lt;dbl&gt;
+##  1 AMAZONAS           2001   1278016.    400866  3188.
+##  2 AMAZONAS           2006   1664368.    407817  4081.
+##  3 AMAZONAS           2011   2287107     407347  5615.
+##  4 AMAZONAS           2016   2784366     411525  6766.
+##  5 AMAZONAS           2020   3030350     426806  7100.
+##  6 AMAZONAS           2021   3122772     428512  7287.
+##  7 ANCASH             2001  11625612.   1089213 10673.
+##  8 ANCASH             2006  14745138.   1095903 13455.
+##  9 ANCASH             2011  16155687    1100147 14685.
+## 10 ANCASH             2016  18365696    1126698 16300.
+## # ℹ 134 more rows</code></pre>
+<pre class="r"><code>write.csv(PBI_pc, &quot;PBI_pc.csv&quot;)</code></pre>
 
 
 
